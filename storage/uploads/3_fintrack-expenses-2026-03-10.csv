@@ -1,0 +1,21 @@
+Date,Amount,Category,Description,Merchant,Payment Method
+10/03/2026,400,Shopping,zudio,,UPI
+09/03/2026,100,Groceries,rice,,UPI
+09/03/2026,250,Other,service,,UPI
+09/03/2026,1000,Entertainment,amusement,wonderla,Cash
+09/03/2026,300,Transport,petrol,indian oil,UPI
+09/03/2026,456,Transport,uber,,Cash
+09/03/2026,432,Food,food,swiggy,UPI
+09/03/2026,7,Groceries,Receipt: Anuvind K,Anuvind K,Net Banking
+09/03/2026,500,Subscriptions,Receipt: Anuvind K,Anuvind K,UPI
+09/03/2026,100,Travel,SMS: date 07Aug25 trf to AGNIVESH A,date 07Aug25 trf to AGNIVESH A,Debit Card
+07/03/2026,500,Transport,petrol,hp,Cash
+05/03/2026,300,Entertainment,youtube,,UPI
+04/03/2026,1500,Other,workshop,,Cash
+03/03/2026,2500,Food,food,lulu,Wallet
+09/02/2026,913,Bills,Receipt: Anuvind K,Anuvind K,UPI
+08/01/2026,649,Entertainment,netflix,,UPI
+12/12/2025,2500,Transport,petrol,hp,UPI
+09/11/2025,1500,Transport,flight,,Credit Card
+09/11/2025,2000,Health,pharmacy,,UPI
+12/02/2025,1500,Shopping,clothes,,UPI

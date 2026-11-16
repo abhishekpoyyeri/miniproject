@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataGuard AI — Minimalist Pre-Migration Validation</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Benchmark Visuals -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Minimal Navigation Bar -->
+    <header class="bg-white border-b border-[#EAEAEA] sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <!-- Brand -->
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center font-bold text-xs tracking-wider">
+                    DG
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-bold tracking-tight text-[#111111]">DataGuard AI</span>
+                        <span class="tag-pill tag-neutral text-[10px]">GPT-4o</span>
+                    </div>
+                    <p class="text-[11px] text-[#787774] leading-none mt-0.5">Pre-Migration Quality Assurance</p>
+                </div>
+            </div>
+
+            <!-- Segmented Navigation Pills -->
+            <nav class="flex items-center bg-[#F7F6F3] p-1 rounded-lg border border-[#EAEAEA] space-x-0.5">
+                <button onclick="navigateTab('validate')" id="nav-validate" class="nav-tab-btn active">
+                    <i class="fa-solid fa-play text-xs mr-1.5 text-[#111111]"></i>Validate
+                </button>
+                <button onclick="navigateTab('ai-rules')" id="nav-ai-rules" class="nav-tab-btn">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xs mr-1.5 text-[#787774]"></i>AI Rule Generator
+                </button>
+                <button onclick="navigateTab('templates')" id="nav-templates" class="nav-tab-btn">
+                    <i class="fa-solid fa-table-list text-xs mr-1.5 text-[#787774]"></i>Templates & Rules
+                </button>
+                <button onclick="navigateTab('benchmark')" id="nav-benchmark" class="nav-tab-btn">
+                    <i class="fa-solid fa-chart-simple text-xs mr-1.5 text-[#787774]"></i>Paper Benchmark
+                </button>
+                <button onclick="navigateTab('history')" id="nav-history" class="nav-tab-btn">
+                    <i class="fa-solid fa-clock-rotate-left text-xs mr-1.5 text-[#787774]"></i>History
+                </button>
+            </nav>
+
+            <!-- Role Selector & Status -->
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-1.5 text-[11px] font-medium text-[#787774] bg-[#F7F6F3] px-2.5 py-1 rounded-md border border-[#EAEAEA]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#346538]"></span>
+                    <span id="header-role-text">Admin</span>
+                    <button onclick="toggleRole()" class="text-[#111111] hover:underline font-semibold ml-1">Switch</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
+        
+        <!-- ===================================================================
+             TAB 1: VALIDATE DATASET (Primary Minimal Workhorse)
+             =================================================================== -->
+        <section id="tab-validate" class="space-y-6">
+            <!-- Header -->
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#111111]">Validate Migration Dataset</h1>
+                <p class="text-sm text-[#787774] mt-1">Select an InsurTech template and upload your dataset to verify structural constraints, data types, and dependencies before loading.</p>
+            </div>
+
+            <!-- Ingestion Card -->
+            <div class="minimal-card p-6 space-y-6">
+                <!-- Step 1 & 2 Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Template Choice -->
+                    <div>
+                        <label class="block text-xs font-semibold text-[#111111] uppercase tracking-wider mb-2">1. Migration Template</label>
+                        <select id="validate-template-select" onchange="onValidateTemplateChange()" class="w-full px-3.5 py-2.5 bg-white border border-[#EAEAEA] rounded-md text-xs font-medium focus:outline-none focus:border-[#111111]">
+                            <option value="">Loading templates...</option>
+                        </select>
+                        <div id="validate-template-hint" class="text-[11px] text-[#787774] mt-2 flex items-center justify-between">
+                            <span>Expected dataset structure</span>
+                            <button type="button" onclick="downloadCurrentTemplateExcel()" class="text-[#111111] font-semibold hover:underline">
+                                <i class="fa-solid fa-download mr-1"></i>Download Blank .xlsx
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1-Click Test Datasets -->
+                    <div>
+                        <label class="block text-xs font-semibold text-[#111111] uppercase tracking-wider mb-2">2. Quick Test Samples</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button type="button" onclick="loadSampleDataset('polizas_valid')" class="p-2.5 text-left border border-[#EAEAEA] hover:border-[#D5D4D2] hover:bg-[#F7F6F3] rounded-md transition text-xs">
+                                <span class="tag-pill tag-green text-[10px] block w-fit mb-1">100% Pass</span>
+                                <span class="font-semibold text-[#111111] block leading-tight">Valid Policies</span>
+                            </button>
+                            <button type="button" onclick="loadSampleDataset('polizas_errors')" class="p-2.5 text-left border border-[#EAEAEA] hover:border-[#D5D4D2] hover:bg-[#F7F6F3] rounded-md transition text-xs">
+                                <span class="tag-pill tag-red text-[10px] block w-fit mb-1">Errors</span>
+                                <span class="font-semibold text-[#111111] block leading-tight">Policy Defects</span>
+                            </button>
+                            <button type="button" onclick="loadSampleDataset('clientes_errors')" class="p-2.5 text-left border border-[#EAEAEA] hover:border-[#D5D4D2] hover:bg-[#F7F6F3] rounded-md transition text-xs">
+                                <span class="tag-pill tag-amber text-[10px] block w-fit mb-1">Dependency</span>
+                                <span class="font-semibold text-[#111111] block leading-tight">Customer Rules</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropzone -->
+                <div>
+                    <label class="block text-xs font-semibold text-[#111111] uppercase tracking-wider mb-2">3. Dataset File (.xlsx, .csv)</label>
+                    <div id="dropzone" onclick="document.getElementById('file-input').click()" class="border border-dashed border-[#D5D4D2] hover:border-[#111111] rounded-lg p-6 text-center cursor-pointer bg-[#FAF9F7] transition">
+                        <i class="fa-regular fa-file-excel text-xl text-[#787774] mb-2 block"></i>
+                        <span id="file-label" class="text-xs font-medium text-[#111111]">Click or drag & drop an Excel (.xlsx) or CSV file</span>
+                        <p class="text-[11px] text-[#A1A09E] mt-0.5">Supports standard migration exports up to 100MB</p>
+                        <input type="file" id="file-input" onchange="onFileSelected(event)" class="hidden" accept=".xlsx,.xls,.csv">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-2 border-t border-[#EAEAEA]">
+                    <span class="text-xs text-[#787774]" id="file-status-indicator">Ready to validate</span>
+                    <button type="button" onclick="executeValidation()" id="btn-validate" class="btn-primary px-5 py-2.5 flex items-center space-x-2">
+                        <i class="fa-solid fa-bolt text-xs"></i>
+                        <span>Validate Dataset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Execution Results Area -->
+            <div id="validation-result-container" class="hidden space-y-6">
+                <!-- Injected dynamically -->
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 2: AI RULE GENERATOR (GPT-4o)
+             =================================================================== -->
+        <section id="tab-ai-rules" class="hidden space-y-6">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#111111]">GPT-4o Natural Language Rule Generator</h1>
+                <p class="text-sm text-[#787774] mt-1">Specify validation criteria in plain English. DataGuard AI maps natural language requirements into verified, schema-constrained JSON rules.</p>
+            </div>
+
+            <div class="minimal-card p-6 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-[#111111] uppercase tracking-wider mb-1.5">Target Template</label>
+                        <select id="ai-template-select" onchange="onAITemplateSelectChange()" class="w-full px-3 py-2 bg-white border border-[#EAEAEA] rounded-md text-xs font-medium">
+                            <!-- Injected dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-[#111111] uppercase tracking-wider mb-1.5">Target Column</label>
+                        <select id="ai-column-select" class="w-full px-3 py-2 bg-white border border-[#EAEAEA] rounded-md text-xs font-medium">
+                            <!-- Injected dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-semibold text-[#111111] uppercase tracking-wider">Natural Language Requirement</label>
+                        <span class="text-[11px] text-[#787774]">Section III-B Guided Pattern</span>
+                    </div>
+                    <textarea id="ai-prompt-input" rows="3" class="w-full p-3 bg-white border border-[#EAEAEA] rounded-md text-xs font-mono focus:outline-none focus:border-[#111111]" placeholder="Validate that the field 'Numero_Documento' is of type Document and has minimum length 8 and maximum length 11; otherwise display: 'Invalid document length'. Valid example: 45678912, Invalid example: 123"></textarea>
+                </div>
+
+                <!-- Quick Examples Chips -->
+                <div>
+                    <span class="text-[11px] font-semibold text-[#787774] block mb-2">Pre-configured Research Paper Examples:</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" onclick="setAIPromptExample('document')" class="tag-pill tag-blue hover:opacity-80 transition cursor-pointer">DNI Length (8 digits)</button>
+                        <button type="button" onclick="setAIPromptExample('currency')" class="tag-pill tag-blue hover:opacity-80 transition cursor-pointer">Currency List (PEN/USD)</button>
+                        <button type="button" onclick="setAIPromptExample('premium')" class="tag-pill tag-blue hover:opacity-80 transition cursor-pointer">Premium Range (1 - 1,000,000)</button>
+                        <button type="button" onclick="setAIPromptExample('date')" class="tag-pill tag-blue hover:opacity-80 transition cursor-pointer">Issue Date Bounds</button>
+                        <button type="button" onclick="setAIPromptExample('dependency')" class="tag-pill tag-amber hover:opacity-80 transition cursor-pointer">Person Type to Document Dependency</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2 border-t border-[#EAEAEA]">
+                    <button type="button" onclick="executeAIGeneration()" id="btn-generate-ai" class="btn-primary px-5 py-2.5 flex items-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                        <span>Generate & Verify Schema</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Output Card -->
+            <div id="ai-output-container" class="hidden minimal-card p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="tag-pill tag-green">Passed Coherence Check</span>
+                        <span id="ai-output-title" class="text-xs font-bold text-[#111111]"></span>
+                    </div>
+                    <button type="button" onclick="saveGeneratedAIRule()" class="btn-primary px-4 py-1.5 text-xs">
+                        <i class="fa-solid fa-check mr-1.5"></i>Save to Catalog & Assign
+                    </button>
+                </div>
+                <pre id="ai-json-code" class="p-4 bg-[#FAF9F7] border border-[#EAEAEA] rounded-md text-xs font-mono text-[#111111] overflow-x-auto"></pre>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 3: TEMPLATES & ACTIVE RULES
+             =================================================================== -->
+        <section id="tab-templates" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-[#111111]">Templates & Validation Catalog</h1>
+                    <p class="text-sm text-[#787774] mt-1">Explore the 4 standardized InsurTech migration templates and 49 assigned rules.</p>
+                </div>
+            </div>
+
+            <!-- Templates List -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="minimal-templates-grid">
+                <!-- Injected dynamically -->
+            </div>
+
+            <!-- Selected Template Inspection View -->
+            <div id="template-inspect-card" class="minimal-card p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-[#EAEAEA] pb-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-[#111111]" id="inspect-template-title">Template Columns & Rules</h3>
+                        <p class="text-xs text-[#787774]" id="inspect-template-desc"></p>
+                    </div>
+                    <button onclick="downloadInspectTemplateExcel()" class="btn-secondary px-3 py-1.5 text-xs">
+                        <i class="fa-solid fa-download mr-1.5"></i>Download Blank Template
+                    </button>
+                </div>
+                <div class="overflow-x-auto max-h-96">
+                    <table class="w-full text-left text-xs">
+                        <thead class="text-[11px] uppercase tracking-wider text-[#787774] border-b border-[#EAEAEA]">
+                            <tr>
+                                <th class="py-2 px-3 font-semibold">#</th>
+                                <th class="py-2 px-3 font-semibold">Column Header</th>
+                                <th class="py-2 px-3 font-semibold">Data Type</th>
+                                <th class="py-2 px-3 font-semibold">Required</th>
+                                <th class="py-2 px-3 font-semibold">Assigned Validation Rules</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inspect-columns-tbody" class="divide-y divide-[#EAEAEA] text-[#111111]">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 4: PAPER BENCHMARK & EVALUATION (IEEE Access Section VI)
+             =================================================================== -->
+        <section id="tab-benchmark" class="hidden space-y-6">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#111111]">Research Benchmark & Evaluation</h1>
+                <p class="text-sm text-[#787774] mt-1">Empirical evaluation comparing Scenario 1 (Manual SQL/Excel) against Scenario 2 (DataGuard AI) across 400,779 records.</p>
+            </div>
+
+            <!-- 4 Minimal Stat Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="minimal-card p-5">
+                    <span class="text-[11px] font-semibold text-[#787774] uppercase tracking-wider">Rule Accuracy (ACC)</span>
+                    <div class="text-3xl font-serif-title font-bold text-[#111111] mt-2">97.14%</div>
+                    <p class="text-xs text-[#346538] mt-1 font-medium">+14.28% over manual (82.86%)</p>
+                </div>
+                <div class="minimal-card p-5">
+                    <span class="text-[11px] font-semibold text-[#787774] uppercase tracking-wider">Adjustment Rate (ADR)</span>
+                    <div class="text-3xl font-serif-title font-bold text-[#111111] mt-2">2.86%</div>
+                    <p class="text-xs text-[#346538] mt-1 font-medium">Down from 17.14% (Only 1 adjusted)</p>
+                </div>
+                <div class="minimal-card p-5">
+                    <span class="text-[11px] font-semibold text-[#787774] uppercase tracking-wider">Validation Time (TRV)</span>
+                    <div class="text-3xl font-serif-title font-bold text-[#111111] mt-2">28.00 min</div>
+                    <p class="text-xs text-[#1F6C9F] mt-1 font-medium">84.76% faster (was 183.75 min)</p>
+                </div>
+                <div class="minimal-card p-5">
+                    <span class="text-[11px] font-semibold text-[#787774] uppercase tracking-wider">Inconsistency F1-Score</span>
+                    <div class="text-3xl font-serif-title font-bold text-[#111111] mt-2">99.92%</div>
+                    <p class="text-xs text-[#346538] mt-1 font-medium">100% Precision (0 False Positives)</p>
+                </div>
+            </div>
+
+            <!-- 2 Clean Minimal Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="minimal-card p-6">
+                    <h3 class="text-xs font-semibold text-[#111111] uppercase tracking-wider mb-1">Time per Stage (Minutes)</h3>
+                    <p class="text-[11px] text-[#787774] mb-4">Figure 18: Manual SQL process vs DataGuard AI</p>
+                    <div class="h-60">
+                        <canvas id="minimal-chart-time"></canvas>
+                    </div>
+                </div>
+                <div class="minimal-card p-6">
+                    <h3 class="text-xs font-semibold text-[#111111] uppercase tracking-wider mb-1">Inconsistency Detection (F1 / PRC / REC)</h3>
+                    <p class="text-[11px] text-[#787774] mb-4">Figures 19 & 20: Pooled evaluation over 200 executions</p>
+                    <div class="h-60">
+                        <canvas id="minimal-chart-detection"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================
+             TAB 5: UPLOAD HISTORY & TRACEABILITY
+             =================================================================== -->
+        <section id="tab-history" class="hidden space-y-6">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#111111]">Execution History</h1>
+                <p class="text-sm text-[#787774] mt-1">Audit log of all validation executions, row compliance rates, and downloadable reports.</p>
+            </div>
+
+            <div class="minimal-card overflow-hidden">
+                <table class="w-full text-left text-xs">
+                    <thead class="text-[11px] uppercase tracking-wider text-[#787774] border-b border-[#EAEAEA] bg-[#FAF9F7]">
+                        <tr>
+                            <th class="py-3 px-4 font-semibold">Load ID</th>
+                            <th class="py-3 px-4 font-semibold">Template</th>
+                            <th class="py-3 px-4 font-semibold">File Name</th>
+                            <th class="py-3 px-4 font-semibold">Records</th>
+                            <th class="py-3 px-4 font-semibold">Compliance %</th>
+                            <th class="py-3 px-4 font-semibold">Status</th>
+                            <th class="py-3 px-4 font-semibold">Duration</th>
+                            <th class="py-3 px-4 text-right font-semibold">Report</th>
+                        </tr>
+                    </thead>
+                    <tbody id="minimal-history-tbody" class="divide-y divide-[#EAEAEA] text-[#111111]">
+                        <!-- Injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Global Minimal Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform transition-all duration-200 translate-y-3 opacity-0 pointer-events-none">
+        <div id="toast-body" class="bg-[#111111] text-white px-4 py-2.5 rounded-md text-xs font-medium shadow-sm flex items-center space-x-2">
+            <span id="toast-text">Notification</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
